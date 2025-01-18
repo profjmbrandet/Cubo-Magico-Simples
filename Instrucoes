@@ -1,0 +1,7 @@
+a) Como Funciona:
+Estrutura: Cada peça do cubo (cubie) é um Mesh com faces coloridas.
+Camadas: As camadas são rotacionadas com base na posição das peças em um eixo específico (x, y, ou z).
+Controles: As teclas (U, D, L, R, F, B) controlam a rotação das camadas.
+b) Requisitos:
+Navegador moderno: Teste em um navegador que suporte WebGL.
+Conexão à internet: Para carregar o Three.js.
