@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cubo Mágico 3D</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+    #controls { position: absolute; top: 10px; left: 10px; color: white; }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <h2>Cubo Mágico</h2>
+    <p>Use as teclas para girar camadas (U, D, L, R, F, B)</p>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Configuração básica do Three.js
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Variáveis do cubo mágico
+    const SIZE = 3; // Tamanho do cubo mágico (3x3x3)
+    const CUBE_SIZE = 1; // Tamanho de cada peça (cubie)
+    const OFFSET = CUBE_SIZE + 0.05; // Espaço entre as peças
+    const colors = ['white', 'yellow', 'blue', 'green', 'red', 'orange']; // Faces do cubo
+
+    // Função para criar um cubo
+    function createCubie(x, y, z, colorFaces) {
+      const geometry = new THREE.BoxGeometry(CUBE_SIZE, CUBE_SIZE, CUBE_SIZE);
+      const materials = colors.map((color, i) => new THREE.MeshBasicMaterial({ color: colorFaces[i] || 'black' }));
+      const cubie = new THREE.Mesh(geometry, materials);
+      cubie.position.set(x * OFFSET, y * OFFSET, z * OFFSET);
+      return cubie;
+    }
+
+    // Função para inicializar o cubo
+    function initCube() {
+      const group = new THREE.Group();
+
+      for (let x = 0; x < SIZE; x++) {
+        for (let y = 0; y < SIZE; y++) {
+          for (let z = 0; z < SIZE; z++) {
+            // Define cores padrão para as faces visíveis
+            const colorFaces = [
+              y === SIZE - 1 ? colors[0] : null, // Branco (topo)
+              y === 0 ? colors[1] : null,       // Amarelo (base)
+              z === SIZE - 1 ? colors[2] : null, // Azul (frente)
+              z === 0 ? colors[3] : null,       // Verde (atrás)
+              x === SIZE - 1 ? colors[4] : null, // Vermelho (direita)
+              x === 0 ? colors[5] : null        // Laranja (esquerda)
+            ];
+            const cubie = createCubie(x - 1, y - 1, z - 1, colorFaces);
+            group.add(cubie);
+          }
+        }
+      }
+
+      return group;
+    }
+
+    const cube = initCube();
+    scene.add(cube);
+
+    // Configuração da câmera
+    camera.position.z = 5;
+
+    // Função para girar camadas
+    function rotateLayer(axis, layer, clockwise = true) {
+      const angle = (clockwise ? 1 : -1) * Math.PI / 2;
+      cube.children.forEach((cubie) => {
+        if (Math.round(cubie.position[axis]) === layer) {
+          cubie.rotation[axis] += angle;
+        }
+      });
+    }
+
+    // Evento de teclado para controlar o cubo
+    document.addEventListener('keydown', (e) => {
+      switch (e.key.toUpperCase()) {
+        case 'U': rotateLayer('y', 1, true); break; // Topo (U)
+        case 'D': rotateLayer('y', -1, true); break; // Base (D)
+        case 'L': rotateLayer('x', -1, true); break; // Esquerda (L)
+        case 'R': rotateLayer('x', 1, true); break; // Direita (R)
+        case 'F': rotateLayer('z', 1, true); break; // Frente (F)
+        case 'B': rotateLayer('z', -1, true); break; // Atrás (B)
+      }
+    });
+
+    // Animação
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
